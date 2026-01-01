@@ -3,7 +3,15 @@ import { postService } from "./post.service";
 
 const createPost = async (req: Request, res: Response) => {
   try {
-    const result = await postService.createPost(req.body);
+    const user = req.user;
+    if (!user) {
+      return res.status(400).json({
+        error: "Unauthorized",
+      });
+    }
+
+    const result = await postService.createPost(req.body, user.id as string);
+
     res.status(201).json(result);
   } catch (error: any) {
     console.error("Post creation error:", error);
@@ -14,6 +22,19 @@ const createPost = async (req: Request, res: Response) => {
   }
 };
 
+const getAllPostController = async (req: Request, res: Response) => {
+  try {
+    const result = await postService.getAllPost();
+     res.status(200).json({result})
+  } catch (error) {
+    res.status(200).json({
+      error: "Post creation failed",
+      details: error,
+    });
+  }
+};
+
 export const PostController = {
   createPost,
+  getAllPostController
 };
