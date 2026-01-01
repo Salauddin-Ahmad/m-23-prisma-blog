@@ -15,12 +15,35 @@ const createPost = async (
   return result;
 };
 
-
-const getAllPost = async () => {
-    console.log("get all post")
-}
+const getAllPost = async (payload: { search: string | undefined }) => {
+  const result = await prisma.post.findMany({
+    where: {
+      OR: [
+        {
+          title: {
+            contains: payload.search as string,
+            mode: "insensitive",
+          },
+        },
+        {
+          content: {
+            contains: payload.search as string,
+            mode: "insensitive",
+          },
+        },
+        {
+          tags: {
+           has: payload.search as string
+          },
+        },
+      ],
+    },
+  });
+  console.log("getting posts");
+  return result;
+};
 
 export const postService = {
   createPost,
-  getAllPost
+  getAllPost,
 };

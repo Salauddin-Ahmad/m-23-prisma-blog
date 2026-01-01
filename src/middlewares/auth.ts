@@ -28,7 +28,6 @@ const auth = (...roles: UserRole[]) => {
         headers: req.headers as any,
       });
 
-      console.log(session);
       if (!session) {
         return res.status(401).json({
           success: false,
@@ -58,11 +57,12 @@ const auth = (...roles: UserRole[]) => {
             "Forbidden 🔴 You dont have permission to access this resources!",
         });
       }
+
+      return next();
     } catch (error) {
       next(error);
     }
   };
 };
-
 
 export default auth;
