@@ -6,7 +6,9 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "dev": "npx tsx watch src/server.ts",
-    "redis:keys": "ts-node-esm src/redis/redis.keys.ts"
+    "redis:keys": "ts-node-esm src/redis/redis.keys.ts",
+    "seed:admin": "npx tsx src/scripts/seedAdmin.ts"
+
   },
   "keywords": [],
   "author": "",
