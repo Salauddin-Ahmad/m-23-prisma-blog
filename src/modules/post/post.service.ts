@@ -1,4 +1,3 @@
-import { SortOrder } from './../../../generated/prisma/internal/prismaNamespaceBrowser';
 import { Post, PostStatus } from "../../../generated/prisma/client";
 import { PostWhereInput } from "../../../generated/prisma/models";
 import { prisma } from "../../lib/prisma";
@@ -27,19 +26,18 @@ const getAllPost = async ({
   limit,
   skip,
   sortBy,
-  sortOrder
+  sortOrder,
 }: {
   search: string | undefined;
   tags: string[] | [];
   isFeatured: boolean | undefined;
   status: PostStatus | undefined;
   authorId: string | undefined;
-  page: number,
-  limit: number,
-  skip: number,
-  sortBy: string | undefined,
-  sortOrder: string | undefined,
-
+  page: number;
+  limit: number;
+  skip: number;
+  sortBy: string;
+  sortOrder: string;
 }) => {
   const andConditions: PostWhereInput[] = [];
 
@@ -85,13 +83,11 @@ const getAllPost = async ({
       status,
     });
   }
-  if (authorId){
+  if (authorId) {
     andConditions.push({
-      authorId
-    })
+      authorId,
+    });
   }
-
-
 
   const result = await prisma.post.findMany({
     take: limit,
@@ -99,18 +95,54 @@ const getAllPost = async ({
     where: {
       AND: andConditions,
     },
-    orderBy: sortBy && sortOrder ? {
-      [sortBy]: sortOrder
-    } : {
-      createdAt: "desc"
-    }
+    orderBy: {
+      [sortBy]: sortOrder,
+    },
   });
 
-  // console.log("getting posts", result);
+  const total = await prisma.post.count({
+    where: {
+      AND: andConditions,
+    },
+  });
+
+  return {
+    data: result,
+    pagination: {
+      total,
+      page,
+      limit,
+      totalPages: Math.ceil(total / limit),
+    },
+  };
+};
+
+const getPostById = async (postId: string) => {
+  const result = await prisma.$transaction(async (tx) => {
+    await tx.post.update({
+      where: {
+        id: postId,
+      },
+      data: {
+        views: {
+          increment: 1,
+        },
+      },
+    });
+
+    const postData = await tx.post.findUnique({
+      where: {
+        id: postId,
+      },
+    });
+
+    return postData;
+  });
   return result;
 };
 
 export const postService = {
   createPost,
   getAllPost,
+  getPostById,
 };

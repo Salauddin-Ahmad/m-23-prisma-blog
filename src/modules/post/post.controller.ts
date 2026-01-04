@@ -51,7 +51,7 @@ const getAllPostController = async (req: Request, res: Response) => {
     const options = paginationSortingHelper(req.query);
 
     const { page, limit, skip, sortBy, sortOrder } = options;
-    
+
     console.log("options", options);
 
     const result = await postService.getAllPost({
@@ -75,7 +75,29 @@ const getAllPostController = async (req: Request, res: Response) => {
   }
 };
 
+const getPostById = async (req: Request, res: Response) => {
+  try {
+    const { postId } = req.params;
+    console.log(postId);
+    if (!postId) {
+      throw new Error("Post Id is required");
+    }
+
+    const result = await postService.getPostById(postId);
+    res.status(200).json(result);
+  } catch (error: any) {
+    console.error("Post creation error:", error);
+    res.status(400).json({
+      error: "Geting post failed",
+      details: error,
+    });
+  }
+};
+
 export const PostController = {
   createPost,
   getAllPostController,
+  getPostById,
 };
+
+
