@@ -4,6 +4,8 @@ import { UserRole } from "../middlewares/auth";
 async function seedAdmin() {
   try {
     // check user exist on db or not
+
+    console.log("admin seeding started")
     const adminData = {
       name: "Admins",
       email: "admin1@admin.com",
@@ -35,9 +37,16 @@ async function seedAdmin() {
     console.log(signUpAdmin)
 
     if(signUpAdmin.ok){
-
+        await prisma.user.update({
+            where: {
+               email: adminData.email 
+            },
+            data: {
+               emailVerified: true 
+            }
+        })
     }
-    
+
   } catch (error) {
     console.error(error);
   }

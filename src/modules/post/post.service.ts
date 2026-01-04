@@ -1,3 +1,4 @@
+import { SortOrder } from './../../../generated/prisma/internal/prismaNamespaceBrowser';
 import { Post, PostStatus } from "../../../generated/prisma/client";
 import { PostWhereInput } from "../../../generated/prisma/models";
 import { prisma } from "../../lib/prisma";
@@ -22,12 +23,23 @@ const getAllPost = async ({
   isFeatured,
   status,
   authorId,
+  page,
+  limit,
+  skip,
+  sortBy,
+  sortOrder
 }: {
   search: string | undefined;
   tags: string[] | [];
   isFeatured: boolean | undefined;
   status: PostStatus | undefined;
   authorId: string | undefined;
+  page: number,
+  limit: number,
+  skip: number,
+  sortBy: string | undefined,
+  sortOrder: string | undefined,
+
 }) => {
   const andConditions: PostWhereInput[] = [];
 
@@ -55,7 +67,6 @@ const getAllPost = async ({
       ],
     });
   }
-
   if (tags.length > 0) {
     andConditions.push({
       // This is group 2
@@ -64,32 +75,38 @@ const getAllPost = async ({
       },
     });
   }
-
   if (typeof isFeatured === "boolean") {
     andConditions.push({
       isFeatured,
     });
   }
-
   if (status) {
     andConditions.push({
       status,
     });
   }
-
-
   if (authorId){
     andConditions.push({
       authorId
     })
   }
 
+
+
   const result = await prisma.post.findMany({
+    take: limit,
+    skip,
     where: {
       AND: andConditions,
     },
+    orderBy: sortBy && sortOrder ? {
+      [sortBy]: sortOrder
+    } : {
+      createdAt: "desc"
+    }
   });
-  console.log("getting posts");
+
+  // console.log("getting posts", result);
   return result;
 };
 
