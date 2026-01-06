@@ -62,8 +62,34 @@ const getCommentByAuthor = async (authorId: string) => {
   });
 };
 
-export const CommentService = {
+const deleteComment = async (commentId: string, authorId: string) => {
+  console.log({ commentId, authorId });
+
+  const commentData = await prisma.comment.findFirst({
+    where: {
+      id: commentId,
+      authorId,
+    },
+    select: {
+      id: true,
+    },
+  });
+
+  if (!commentData) {
+    throw new Error("Your provided input is invaild");
+  }
+
+  return await prisma.comment.delete({
+    where: {
+      id: commentData.id
+    }
+  })
+  return deleteComment;
+};
+
+export const commentService = {
   createComment,
   getCommentById,
   getCommentByAuthor,
+  deleteComment,
 };
