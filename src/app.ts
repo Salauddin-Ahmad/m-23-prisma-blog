@@ -20,6 +20,7 @@ app.use(express.urlencoded({ extended: true })); // for form data
 app.use("/posts", postRouter);
 app.use("/comments", commentRouter);
 
+
 app.get("/", (req, res) => {
     res.send("Hello, world");
 })
