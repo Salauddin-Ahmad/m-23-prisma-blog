@@ -88,7 +88,28 @@ const getPostById = async (req: Request, res: Response) => {
   } catch (error: any) {
     console.error("Post creation error:", error);
     res.status(400).json({
-      error: "Geting post failed",
+      error: "Geting ",
+      details: error,
+    });
+  }
+};
+
+
+const getMyPost = async (req: Request, res: Response) => {
+  try {
+    const userId = req.user?.id;
+    console.log(req.user)
+    if (!userId) {
+      throw new Error("You are not Authorized");
+    }
+
+    const result = await postService.getMyPosts(userId as string);
+    res.status(200).json(result);
+  } catch (error: any) {
+    const errorMessage =
+      error instanceof Error ? error.message : "Getting posts failed";
+    res.status(400).json({
+      error: errorMessage,
       details: error,
     });
   }
@@ -98,6 +119,5 @@ export const PostController = {
   createPost,
   getAllPostController,
   getPostById,
+  getMyPost,
 };
-
-
