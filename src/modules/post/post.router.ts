@@ -6,7 +6,7 @@ const router = express.Router();
 
 router.post(
   "/",
-  auth(UserRole.USER),
+  auth(UserRole.USER, UserRole.ADMIN ),
   PostController.createPost
 );
 router.get(

@@ -94,7 +94,6 @@ const getPostById = async (req: Request, res: Response) => {
   }
 };
 
-
 const getMyPost = async (req: Request, res: Response) => {
   try {
     const userId = req.user?.id;
