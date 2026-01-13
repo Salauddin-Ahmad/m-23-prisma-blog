@@ -97,7 +97,7 @@ const getPostById = async (req: Request, res: Response) => {
 const getMyPost = async (req: Request, res: Response) => {
   try {
     const userId = req.user?.id;
-    console.log(req.user)
+    console.log(req.user);
     if (!userId) {
       throw new Error("You are not Authorized");
     }
@@ -114,9 +114,35 @@ const getMyPost = async (req: Request, res: Response) => {
   }
 };
 
+const updatePostcontroller = async (req: Request, res: Response) => {
+  try {
+    const userId = req.user?.id;
+    console.log(req.user);
+    if (!userId) {
+      throw new Error("You are not Authorized");
+    }
+    const { postId } = req.params;
+
+    const result = await postService.updatePost(
+      postId as string,
+      req.body,
+      userId
+    );
+    res.status(200).json(result);
+  } catch (error: any) {
+    const errorMessage =
+      error instanceof Error ? error.message : "Posts update failed";
+    res.status(400).json({
+      error: errorMessage,
+      details: error,
+    });
+  }
+};
+
 export const PostController = {
   createPost,
   getAllPostController,
   getPostById,
   getMyPost,
+  updatePostcontroller
 };

@@ -6,13 +6,10 @@ const router = express.Router();
 
 router.post(
   "/",
-  auth(UserRole.USER, UserRole.ADMIN ),
+  auth(UserRole.USER, UserRole.ADMIN),
   PostController.createPost
 );
-router.get(
-  "/",
-  PostController.getAllPostController
-);
+router.get("/", PostController.getAllPostController);
 
 router.get(
   "/my-posts",
@@ -20,9 +17,11 @@ router.get(
   PostController.getMyPost
 );
 
-router.get(
-    "/:postId",
-  PostController.getPostById
+router.get("/:postId", PostController.getPostById);
+router.patch(
+  "/:postId",
+  auth(UserRole.USER, UserRole.ADMIN),
+  PostController.updatePostcontroller
 );
 
 export const postRouter = router;
