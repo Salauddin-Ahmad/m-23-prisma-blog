@@ -17,11 +17,26 @@ router.get(
   PostController.getMyPost
 );
 
+router.get(
+  "/stats",
+  auth(UserRole.ADMIN),
+  PostController.getStatsController
+);
+
 router.get("/:postId", PostController.getPostById);
+
 router.patch(
   "/:postId",
   auth(UserRole.USER, UserRole.ADMIN),
   PostController.updatePostcontroller
 );
+
+router.delete(
+  "/:postId",
+  auth(UserRole.USER, UserRole.ADMIN),
+  PostController.deletePostController
+);
+
+
 
 export const postRouter = router;

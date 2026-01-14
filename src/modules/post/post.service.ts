@@ -1,3 +1,4 @@
+import { PostStatus } from "./../../../generated/prisma/enums";
 import {
   CommentStatus,
   Post,
@@ -219,33 +220,87 @@ const getMyPosts = async (authorId: string) => {
   return result;
 };
 
-const updatePost = async (postId: string, data: Partial<Post>, authorId: string) => {
- 
- console.log(postId, data, authorId)
+const updatePost = async (
+  postId: string,
+  data: Partial<Post>,
+  isAdmin: boolean,
+  authorId: string
+) => {
+  console.log(postId, data, authorId);
 
- const postData = await prisma.post.findUniqueOrThrow({
-  where: {
-    id: postId
-  },
-  select: {
-    id: true,
-    authorId: true
+  const postData = await prisma.post.findUniqueOrThrow({
+    where: {
+      id: postId,
+    },
+    select: {
+      id: true,
+      authorId: true,
+    },
+  });
+
+  if (!isAdmin && postData.authorId !== authorId) {
+    throw new Error("You are not the ownwer/creator of the post");
   }
- })
 
-
-   if(postData.authorId !== authorId) {
-    throw new Error("You are not the ownwer/creator of the post")
+  if (!isAdmin) {
+    delete data.isFeatured;
   }
 
   const result = await prisma.post.update({
     where: {
-    id: postData.id
-  },
-  data
+      id: postData.id,
+    },
+    data,
   });
 
   return result;
+};
+
+const deletePost = async (
+  postId: string,
+  authorId: string,
+  isAdmin: boolean
+) => {
+  const postData = await prisma.post.findUniqueOrThrow({
+    where: {
+      id: postId,
+    },
+    select: {
+      id: true,
+      authorId: true,
+    },
+  });
+
+  if (!isAdmin && postData.authorId !== authorId) {
+    throw new Error("You are not the ownwer/creator of the post");
+  }
+  return await prisma.post.delete({
+    where: {
+      id: postId,
+    },
+  });
+};
+
+const getStats = async () => {
+  return await prisma.$transaction(async (tx) => {
+    const [totalPosts, publishedPosts, draftPosts, archivedPosts, totalComments, approvedComments] =
+      await Promise.all([
+        await tx.post.count(),
+        await tx.post.count({ where: { status: PostStatus.PUBLISHED } }),
+        await tx.post.count({ where: { status: PostStatus.DRAFT } }),
+        await tx.post.count({ where: { status: PostStatus.ARCHIVED } }),
+        await tx.comment.count({where: {status: CommentStatus.APPROVED }}),
+        await tx.comment.count(),
+        
+      ]);
+
+    return {
+      totalPosts,
+      publishedPosts,
+      draftPosts,
+      archivedPosts,
+    };
+  });
 };
 
 export const postService = {
@@ -253,5 +308,7 @@ export const postService = {
   getAllPost,
   getPostById,
   getMyPosts,
-  updatePost
+  updatePost,
+  deletePost,
+  getStats,
 };
