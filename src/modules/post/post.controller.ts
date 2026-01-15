@@ -116,7 +116,7 @@ const getMyPost = async (req: Request, res: Response) => {
   }
 };
 
-const updatePostcontroller = async (req: Request, res: Response) => {
+const updatePostcontroller = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const userId = req.user?.id;
     console.log(req.user);
@@ -135,12 +135,13 @@ const updatePostcontroller = async (req: Request, res: Response) => {
     );
     res.status(200).json(result);
   } catch (error: any) {
-    const errorMessage =
-      error instanceof Error ? error.message : "Posts update failed";
-    res.status(400).json({
-      error: errorMessage,
-      details: error,
-    });
+    // const errorMessage =
+    //   error instanceof Error ? error.message : "Posts update failed";
+    // res.status(400).json({
+    //   error: errorMessage,
+    //   details: error,
+    // });
+    next(error)
   }
 };
 
