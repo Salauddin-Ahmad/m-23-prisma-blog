@@ -1,10 +1,10 @@
-import { Request, Response } from "express";
+import { NextFunction, Request, Response } from "express";
 import { postService } from "./post.service";
 import { PostStatus } from "../../../generated/prisma/enums";
 import paginationSortingHelper from "../../helpers/paginationSortingHelper";
 import { UserRole } from "../../middlewares/auth";
 
-const createPost = async (req: Request, res: Response) => {
+const createPost = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const user = req.user;
     if (!user) {
@@ -17,11 +17,12 @@ const createPost = async (req: Request, res: Response) => {
 
     res.status(201).json(result);
   } catch (error: any) {
-    console.error("Post creation error:", error);
-    res.status(400).json({
-      error: "post creation failed",
-      details: error,
-    });
+    //   console.error("Post creation error:", error);
+    //   res.status(400).json({
+    //     error: "post creation failed",
+    //     details: error,
+    //   });
+    next(error);
   }
 };
 
@@ -115,7 +116,6 @@ const getMyPost = async (req: Request, res: Response) => {
   }
 };
 
-
 const updatePostcontroller = async (req: Request, res: Response) => {
   try {
     const userId = req.user?.id;
@@ -125,7 +125,7 @@ const updatePostcontroller = async (req: Request, res: Response) => {
     }
     const { postId } = req.params;
 
-    const isAdmin = req?.user?.role === UserRole.ADMIN
+    const isAdmin = req?.user?.role === UserRole.ADMIN;
 
     const result = await postService.updatePost(
       postId as string,
@@ -153,14 +153,14 @@ const deletePostController = async (req: Request, res: Response) => {
     }
     const { postId } = req.params;
 
-    const isAdmin = req?.user?.role === UserRole.ADMIN
+    const isAdmin = req?.user?.role === UserRole.ADMIN;
 
     const result = await postService.deletePost(
       postId as string,
       userId,
-      isAdmin,
+      isAdmin
     );
-    console.log(result)
+    console.log(result);
     res.status(200).json(result);
   } catch (error: any) {
     const errorMessage =
@@ -174,10 +174,8 @@ const deletePostController = async (req: Request, res: Response) => {
 
 const getStatsController = async (req: Request, res: Response) => {
   try {
-   
-    const result = await postService.getStats(
-    );
-    
+    const result = await postService.getStats();
+
     res.status(200).json(result);
   } catch (error: any) {
     const errorMessage =
@@ -189,9 +187,6 @@ const getStatsController = async (req: Request, res: Response) => {
   }
 };
 
-
-
-
 export const PostController = {
   createPost,
   getAllPostController,
@@ -199,6 +194,5 @@ export const PostController = {
   getMyPost,
   updatePostcontroller,
   deletePostController,
-  getStatsController
-
+  getStatsController,
 };
